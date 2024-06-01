@@ -13,10 +13,10 @@ const Drive = {
                 console.log('File exists:', file);
                 const content = await this.downloadFileContent(file.id);
                 console.log('File content:', content);
-                // Handle the existing file content here
+                return content;
             } else {
                 console.log('File does not exist');
-                // Handle the case where the file does not exist here
+                return null;
             }
         } catch (error) {
             setError(error);
@@ -65,6 +65,7 @@ const Drive = {
 
     async saveJsonToAppData(jsonData, setError) {
         try {
+            console.log('Saving JSON to AppData');
             const file = await this.checkFileInAppData();
             if (file) {
                 await this.updateFileInAppData(file.id, jsonData);
@@ -115,31 +116,14 @@ const Drive = {
     },
 
     async updateFileInAppData(fileId, jsonData) {
-        const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`;
-        const metadata = {
-            name: this._fname
-        };
-
-        const boundary = '-------314159265358979323846';
-        const delimiter = `\r\n--${boundary}\r\n`;
-        const closeDelimiter = `\r\n--${boundary}--`;
-
-        const body =
-            delimiter +
-            'Content-Type: application/json\r\n\r\n' +
-            JSON.stringify(metadata) +
-            delimiter +
-            'Content-Type: application/json\r\n\r\n' +
-            JSON.stringify(jsonData) +
-            closeDelimiter;
-
+        const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
         const response = await fetch(url, {
             method: 'PATCH',
             headers: {
                 Authorization: `Bearer ${this._token}`,
-                'Content-Type': `multipart/related; boundary="${boundary}"`
+                'Content-Type': 'application/json'
             },
-            body: body
+            body: JSON.stringify(jsonData)
         });
 
         if (!response.ok) {
