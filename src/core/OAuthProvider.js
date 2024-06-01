@@ -59,7 +59,7 @@ const OAuthProvider = ({children, clientId}) => {
     const isAuthenticated = !!token;
 
     return (
-        <OAuthContext.Provider value={{token, scopes, credentials, isAuthenticated, oauthSignIn, oauthSignOut}}>
+        <OAuthContext.Provider value={{token, scopes, credentials, isAuthenticated, oauthSignIn, oauthSignOut, clientId}}>
             {children}
         </OAuthContext.Provider>
     );

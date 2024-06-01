@@ -6,6 +6,9 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
 import { RxDBJsonDumpPlugin } from 'rxdb/plugins/json-dump';
 import { addRxPlugin } from 'rxdb';
 
+import {Drive as d} from "data/Drive";
+import {useOAuth} from "./OAuthProvider";
+
 addRxPlugin(RxDBJsonDumpPlugin);
 
 const RxDBContext = createContext();
@@ -19,6 +22,7 @@ export const RxDBProvider = ({ children }) => {
     const [syncStatus, setSyncStatus] = useState('idle'); // 'idle', 'syncingIn', 'synced', 'syncingOut'
     const [error, setError] = useState(null);
 
+    const {clientId, token} = useOAuth();
 
 
     async function tryCreateNewBlankDb(onSuccess, onError) {
@@ -55,13 +59,16 @@ export const RxDBProvider = ({ children }) => {
     };
 
     const initializeDatabase = async () => {
+        setSyncStatus('syncingIn');
+        d.init(clientId, token);
+        const dbblob = await d.tryRetrieveDb(setError);
+
         tryCreateNewBlankDb(()=>{}, ()=>{}).then();
     };
 
     useEffect(() => {
-
-
         initializeDatabase().then();
+
 
         // Clean up function
         return () => {
@@ -69,7 +76,7 @@ export const RxDBProvider = ({ children }) => {
                 database.destroy();
             }
         };
-    }, [database, initializeDatabase]); // Run only once on component mount
+    }, []); // Run only once on component mount
 
     return (
         <RxDBContext.Provider value={{ database, exportData, importData, syncStatus, error }}>
