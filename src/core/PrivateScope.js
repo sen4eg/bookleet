@@ -1,10 +1,9 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useGoogleOAuth } from '@react-oauth/google'; // Assuming you have a hook to check authentication status
+import {useOAuth} from "./OAuthProvider";
 
 const PrivateScope = ({ children }) => {
-    const { isAuthenticated } = useGoogleOAuth(); // Example hook to check if user is authenticated
-
+    const { isAuthenticated } = useOAuth();
     return (
         <div>
             {!isAuthenticated && <Navigate to="/login" />}

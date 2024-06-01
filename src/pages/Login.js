@@ -1,49 +1,22 @@
-import React, { useState } from 'react';
-import { GoogleLogin, googleLogout } from '@react-oauth/google';
-import axios from 'axios';
+import {Navigate} from "react-router-dom";
+import {useOAuth} from "../core/OAuthProvider";
+
+
 
 const Login = () => {
 
-    const handleSuccess = async (response) => {
-        console.log('Login Success:', response);
-        const token = response.credential;
-
-        // Fetch files from the app data folder
-        // try {
-        //     const res = await axios.get('https://www.googleapis.com/drive/v3/files', {
-        //         headers: {
-        //             'Authorization': `Bearer ${token}`
-        //         },
-        //         params: {
-        //             spaces: 'appDataFolder'
-        //         }
-        //     });
-        // } catch (error) {
-        //     console.error('Error fetching files:', error);
-        // }
-    };
-
-    const handleError = () => {
-        console.log('Login Failed');
-    };
-
-    const handleLogout = () => {
-        googleLogout();
-        console.log('Logged out');
-    };
+    const {isAuthenticated, oauthSignIn} = useOAuth();
 
     return (
+        <>
+        {isAuthenticated && (<Navigate to="/"></Navigate>)}
         <div>
-            <h2>Login with Google</h2>
-            {/*<GoogleLogin*/}
-            {/*    onSuccess={handleSuccess}*/}
-            {/*    onError={handleError}*/}
-            {/*    useOneTap*/}
-            {/*    scope="https://www.googleapis.com/auth/drive.appdata"*/}
-            {/*/>*/}
-            <button onClick={handleLogout}>Logout</button>
+            <h3>To use our website please:</h3>
+            <button onClick={oauthSignIn}>Login with Google</button>
+
 
         </div>
+        </>
     );
 };
 
