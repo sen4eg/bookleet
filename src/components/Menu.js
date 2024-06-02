@@ -1,9 +1,22 @@
+import styles from './styles.module.scss';
 
 const Menu = () => {
     return (
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
+                <li className={styles["menu-item"]}><a href="/">Home</a></li>
+            </ul>
+            <ul>
+                <li className = {styles["menu-item"]} ><a href="/">Home</a></li>
+            </ul>
+            <ul>
+                <li className = {styles["menu-item"]} ><a href="/">Home</a></li>
+            </ul>
+            <ul>
+                <li className = {styles["menu-item"]} ><a href="/">Home</a></li>
+            </ul>
+            <ul>
+                <li className = {styles["menu-item"]} ><a href="/">Home</a></li>
             </ul>
         </nav>
     );

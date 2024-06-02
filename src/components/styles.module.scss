@@ -1,0 +1,101 @@
+// styles.scss
+$primary-color: #282c34;
+$secondary-color: #370808;
+$dark-secondary-color: darken($secondary-color, 10%);
+
+body {
+  background-color: $primary-color;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+}
+
+// -- PAGE LAYOUT --
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.menu-container {
+  position: fixed;
+  left: 10px; /* Adjust as needed to control the floating position */
+  top: 10px; /* Adjust as needed to control the floating position */
+  width: 200px; /* Set the width here */
+  height: calc(100% - 20px); /* Adjust height if needed, considering top and bottom offsets */
+  background-color: $secondary-color;
+  transform: translateX(-110%); /* This hides the menu off-screen to the left */
+  transition: transform 0.3s ease; /* Smooth transition */
+  z-index: 1000;
+
+  &.open {
+    transform: translateX(0); /* This brings the menu into view */
+
+    + .content-container {
+      margin-left: 220px; /* Adjust based on the menu width and desired spacing */
+    }
+  }
+}
+
+.content-container {
+  transition: margin-left 0.3s ease; /* Smooth transition for margin */
+}
+.header {
+  background-color: $secondary-color;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-toggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: $dark-secondary-color;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  color: $primary-color;
+}
+
+.menu-toggle:hover {
+  background-color: lighten($secondary-color, 10%);
+}
+
+.user-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: lighten($primary-color, 10%);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.footer {
+  background-color: $secondary-color;
+  padding: 20px;
+  text-align: center;
+}
+
+//-- MENU --
+
+.menu-item{
+  padding: 10px;
+  cursor: pointer;
+  color : #fff;
+  a{
+    text-underline: none;
+    text-decoration: none;
+    color: #fff;
+  }
+}

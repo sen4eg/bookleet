@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Menu from './Menu';
 import UserStatus from './UserStatus';
-import styles from './styles.sass';
+import styles from './styles.module.scss';
 
 const PageLayout = ({ pageTitle, mainContent }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,24 +11,24 @@ const PageLayout = ({ pageTitle, mainContent }) => {
     };
 
     return (
-        <div className={styles.pageLayout}>
-            <div className={`${styles.menuContainer} ${isMenuOpen ? styles.open : ''}`}>
+        <div className={styles['page-layout']}>
+            <div className={`${styles['menu-container']} ${isMenuOpen ? styles['open'] : ''}`}>
                 <Menu />
             </div>
-            <div className={styles.contentContainer}>
-                <header className={styles.header}>
-                    <button className={styles.menuToggle} onClick={toggleMenu}>
+            <div className={styles['content-container']}>
+                <header className={styles['header']}>
+                    <button className={styles['menu-toggle']} onClick={toggleMenu}>
                         {isMenuOpen ? 'Close' : 'Open'} Menu
                     </button>
-                    <div className={styles.userStatus}>
+                    <h1>{pageTitle}</h1>
+                    <div className={styles['user-status']}>
                         <UserStatus />
                     </div>
-                    <h1>{pageTitle}</h1>
                 </header>
-                <main className={styles.mainContent}>
+                <main className={styles['main-content']}>
                     {mainContent}
                 </main>
-                <footer className={styles.footer}>
+                <footer className={styles['footer']}>
                     <p>Footer content</p>
                 </footer>
             </div>
