@@ -7,7 +7,7 @@ const Home = () => {
     return (
     <PageLayout pageTitle={"Home page"} mainContent={
         <div>
-            <p>This is the home page</p>
+            <h4>Recent books:</h4>
         </div>
     }/>
   );

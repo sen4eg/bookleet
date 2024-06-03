@@ -77,16 +77,16 @@ const Drive = {
         return await response.json();
     },
 
-    async saveJsonToAppData(jsonData, setError) {
+    async saveJsonToAppData(jsonData, setError, onsucces) {
         try {
             console.log('Saving JSON to AppData');
             const file = await this.checkFileInAppData();
             if (file) {
-                await this.updateFileInAppData(file.id, jsonData);
-                console.log('File updated successfully');
+                await(await this.updateFileInAppData(file.id, jsonData)).then(onsucces);
+                // console.log('File updated successfully');
             } else {
-                await this.createFileInAppData(jsonData);
-                console.log('File created successfully');
+                await(await this.createFileInAppData(jsonData)).then(onsucces);
+                // console.log('File created successfully');
             }
         } catch (error) {
             setError(error);

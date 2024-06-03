@@ -24,53 +24,9 @@ export const RxDBProvider = ({ children }) => {
 
     const { clientId, token, auth_complete } = useOAuth();
 
-    async function tryCreateNewBlankDb(onSuccess, onError) {
-        if (database != null) {
-            try {
-                database.destroy();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-        try {
-            const db = await createRxDatabase({
-                name: dbName,
-                storage: getRxStorageDexie()
-            });
-            console.log("db :", db);
-            setDatabase(db);
-            await populateDatabase(db);
-            await db.exportJSON().then(async (data) => {
-                console.log("DATA", data);
-                await d.saveJsonToAppData(data, setError);
-            });
-            onSuccess();
-        } catch (newDbError) {
-            onError(newDbError);
-        }
-    }
 
-    const exportData = async (filename, onSuccess, onError) => {
-        // try {
-        //     // Implement export functionality
-        //     // Example: const data = await database.exportJSON();
-        //     // Then save 'data' to a file
-        //     onSuccess();
-        // } catch (err) {
-        //     // If export fails, create a new blank database
-        //     await tryCreateNewBlankDb(onSuccess, onError);
-        // }
-    };
-
-    const importData = async (file, onSuccess, onError) => {
-        try {
-            onSuccess();
-        } catch (err) {
-            onError(err);
-        }
-    };
-
-    async function populateDatabase(db) {
+    const prepareDatabase = () => {
+        if (!database) return;
         const todoSchema = {
             version: 0,
             primaryKey: 'id',
@@ -93,52 +49,47 @@ export const RxDBProvider = ({ children }) => {
             },
             required: ['id', 'name', 'done', 'timestamp']
         };
-        await db.addCollections({
+        database.addCollections({
             tempos: {
                 schema: todoSchema
             }
+        }).then();
+    }
+
+    const initializeDatabase = () => {
+        d.init(clientId, token, dbName);
+        setSyncStatus('syncingIn');
+
+        d.tryRetrieveDb(setError).then((data) => {
+                createRxDatabase({
+                    name: dbName,
+                    storage: getRxStorageDexie('idb'),
+                    multiInstance: false,
+                }).then((db) => {
+                    setDatabase(db);
+                    if (!!data){
+                        database.importJSON(data);
+                    }else {
+                        prepareDatabase();
+                    }
+                    setSyncStatus('synced');
+            })});
+    }
+
+    const dataChangeCallback = () => {
+        setSyncStatus('syncingOut');
+        database.dump().then((json) => {
+            d.saveJsonToAppData(json, setError, () => {
+                setSyncStatus('synced');
+            }).then();
         });
     }
-    const initializeDatabase = async () => {
-        setSyncStatus('syncingIn');
-        console.log("INIT");
-        d.init(clientId, token, dbName);
-        d.tryRetrieveDb(e => setError(e)).then(dbson => {
-            if (dbson) {
-                try {
-                    tryCreateNewBlankDb(() => { }, () => { }).then(
-                        () => {
-                            database.importJSON(dbson);
-                            setSyncStatus('synced');
-                        }
-                    )
-                    return;
-                } catch (error) {
-                    setError(error);
-                    console.log("AAA", error);
-                }
-            }
-            tryCreateNewBlankDb(() => { }, () => { }).then(async () =>{
-                if (database) {
-                    await populateDatabase(database);
-                    await database.exportJSON().then(async (data) => {
-                        console.log("DATA", data);
-                        await d.saveJsonToAppData(data, setError);
-                    });
-                    setSyncStatus('synced');
-                }
-            })
 
-        })
-
-
-    }
 
     useEffect(() => {
-        console.log("AUTH COMPLETE", auth_complete);
-        if (!auth_complete) {return;}
-
-        initializeDatabase().then();
+        if (auth_complete) {
+            initializeDatabase();
+        }
 
         // Clean up function
         return () => {
@@ -153,7 +104,7 @@ export const RxDBProvider = ({ children }) => {
     }, [auth_complete]);
 
     return (
-        <RxDBContext.Provider value={{ database, exportData, importData, syncStatus, error }}>
+        <RxDBContext.Provider value={{ database, datachangeCallback: dataChangeCallback, syncStatus, error }}>
             {children}
         </RxDBContext.Provider>
     );

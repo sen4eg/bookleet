@@ -19,20 +19,15 @@ const UserStatus = ({ connection }) => {
 
     // Render content based on open/closed status and connection status
     return (
-        <div className={styles["user-status"]}>
+        <div className={styles["user-status"]} onClick={toggleOpen}>
             {/* Render user icon and synced status when closed */}
-            {!isOpen && syncStatus === 'synced' && connection && (
-                <div onClick={toggleOpen}>
-                    {/* Render user icon here */}
-                    <p>User Icon</p>
-                    {/* Render synced status here */}
-                    <p>Synced</p>
-                </div>
-            )}
+            {
+                <img className={styles["user-icon"]} src={profile.picture} alt={"UserPic"}/>
+            }
 
             {/* Render user icon and syncing status when closed and connection is false */}
             {(
-                <div onClick={toggleOpen}>
+                <div>
                     {/* Render user icon here */}
                     {/*<img className={styles["user-icon"]} href={profile}/>*/}
                     {/* Render syncing status here */}

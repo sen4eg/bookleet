@@ -33,6 +33,7 @@ const OAuthProvider = ({ children, clientId }) => {
         // setScopes(scope.split(' '));
         localStorage.setItem('oauth_token', access_token);
         localStorage.setItem('oauth_refresh_token', refresh_token);
+        fetchUserProfile(access_token, setProfile).then();
     }
 
     const handleOAuthSignIn = async () => {
@@ -66,7 +67,6 @@ const OAuthProvider = ({ children, clientId }) => {
     };
 
     const isAuthenticated = !!token;
-
     return (
         <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete }}>
             {children}
