@@ -21,7 +21,7 @@ const PageLayout = ({ pageTitle, mainContent }) => {
                         {isMenuOpen ? 'Close' : 'Open'} Menu
                     </button>
                     <h1>{pageTitle}</h1>
-                    <div className={styles['user-status']}>
+                    <div>
                         <UserStatus />
                     </div>
                 </header>
@@ -29,7 +29,9 @@ const PageLayout = ({ pageTitle, mainContent }) => {
                     {mainContent}
                 </main>
                 <footer className={styles['footer']}>
-                    <p>Footer content</p>
+                    <span>
+                        &copy; Ars
+                    </span>
                 </footer>
             </div>
         </div>

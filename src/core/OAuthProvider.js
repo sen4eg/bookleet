@@ -1,69 +1,69 @@
-import {createContext, useContext, useEffect, useState} from "react";
-
+import { createContext, useContext, useEffect, useState } from "react";
+import {signIn, handleRefresh, fetchUserProfile} from "./googleAPI";
 
 const OAuthContext = createContext({});
 
-const OAuthProvider = ({children, clientId}) => {
-
+const OAuthProvider = ({ children, clientId }) => {
     const [token, setToken] = useState(localStorage.getItem('oauth_token'));
+    const [refreshToken, setRefreshToken] = useState(localStorage.getItem('oauth_refresh_token'));
     const [scopes, setScopes] = useState(localStorage.getItem('oauth_scopes')?.split(' ') || []);
-    const [credentials, setCredentials] = useState(null); // Store additional credentials if needed
+    const [profile, setProfile] = useState({ email: "user" });
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('oauth_token');
-        const storedScopes = localStorage.getItem('oauth_scopes')?.split(' ') || [];
-        if (storedToken) {
-            setToken(storedToken);
-            setScopes(storedScopes);
-        }
+        refreshAuthToken().then(()=>
+            fetchUserProfile(token, setProfile).then()
+        );
     }, []);
 
+    const handleSignInResult = (data) => {
+        console.log("Token data:", data);
+        const { access_token, refresh_token, scope } = data;
+        setToken(access_token);
+        setRefreshToken(refresh_token);
+        setScopes(scope.split(' '));
+        localStorage.setItem('oauth_token', access_token);
+        localStorage.setItem('oauth_refresh_token', refresh_token);
+        localStorage.setItem('oauth_scopes', scope);
+    }
 
-    const oauthSignIn = () => {
-        const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
-        const params = {
-            'client_id': clientId,
-            'redirect_uri': 'http://localhost:3000/callback',
-            'response_type': 'token',
-            'scope': 'https://www.googleapis.com/auth/drive.appdata',
-            'include_granted_scopes': 'true',
-            'state': encodeURIComponent('pass-through value')
-        };
-
-        const urlParams = new URLSearchParams(params).toString();
-        const oauthUrl = `${oauth2Endpoint}?${urlParams}`;
-
-        const oauthWindow = window.open(oauthUrl, 'oauthWindow', 'width=600,height=700');
-
-        const handleMessage = (event) => {
-
-            if (event.origin === window.location.origin && !!event.data.token) {
-                const { token, scopes } = event.data;
-                setToken(token);
-                setScopes(scopes);
-                localStorage.setItem('oauth_token', token);
-                localStorage.setItem('oauth_scopes', scopes.join(' '));
-                oauthWindow.close();
-            }
-        };
-
-        window.addEventListener('message', handleMessage, { once: true });
+    const handleOAuthSignIn = async () => {
+        await signIn(clientId, handleSignInResult);
     };
+
+    const refreshAuthToken = async () => {
+        if (!refreshToken) {
+            console.error("No refresh token available");
+            oauthSignOut();
+            return;
+        }
+
+        try {
+            handleRefresh(refreshToken, setToken, clientId);
+
+        } catch (error) {
+            console.error("Error refreshing token:", error);
+            oauthSignOut();
+        }
+    };
+
     const oauthSignOut = () => {
         setToken(null);
+        setRefreshToken(null);
         setScopes([]);
-        setCredentials(null);
+        setProfile({ email: "user" });
         localStorage.removeItem('oauth_token');
+        localStorage.removeItem('oauth_refresh_token');
         localStorage.removeItem('oauth_scopes');
     };
+
     const isAuthenticated = !!token;
 
     return (
-        <OAuthContext.Provider value={{token, scopes, credentials, isAuthenticated, oauthSignIn, oauthSignOut, clientId}}>
+        <OAuthContext.Provider value={{ token, refreshToken, scopes, isAuthenticated, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile }}>
             {children}
         </OAuthContext.Provider>
     );
-}
+};
 
 const useOAuth = () => {
     const context = useContext(OAuthContext);
@@ -71,6 +71,6 @@ const useOAuth = () => {
         throw new Error('useOAuth must be used within an OAuthProvider');
     }
     return context;
-}
+};
 
-export {OAuthProvider, useOAuth};
+export { OAuthProvider, useOAuth };

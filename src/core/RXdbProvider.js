@@ -13,7 +13,7 @@ addRxPlugin(RxDBJsonDumpPlugin);
 
 const RxDBContext = createContext();
 
-export const useRxDB = () => useContext(RxDBContext);
+export const useData = () => useContext(RxDBContext);
 
 const dbName = 'bookleet-db';
 
@@ -22,7 +22,7 @@ export const RxDBProvider = ({ children }) => {
     const [syncStatus, setSyncStatus] = useState('idle'); // 'idle', 'syncingIn', 'synced', 'syncingOut'
     const [error, setError] = useState(null);
 
-    const { clientId, token } = useOAuth();
+    const { clientId, token, isAuthenticated } = useOAuth();
 
     async function tryCreateNewBlankDb(onSuccess, onError) {
         if (database != null) {
@@ -100,13 +100,14 @@ export const RxDBProvider = ({ children }) => {
         });
     }
 
+
     useEffect(() => {
+        if (!isAuthenticated) {return;}
         async function initializeDatabase() {
             setSyncStatus('syncingIn');
             console.log("INIT");
-            d.init(clientId, token);
+            d.init(clientId, token, dbName);
             const dbson = await d.tryRetrieveDb(e => setError(e));
-            console.log("DBSON", dbson);
             if (dbson) {
                 try {
                     await tryCreateNewBlankDb(() => { }, () => { });
@@ -115,6 +116,7 @@ export const RxDBProvider = ({ children }) => {
                     return;
                 } catch (error) {
                     setError(error);
+                    console.log("AAA", error);
                 }
             }
             await tryCreateNewBlankDb(() => { }, () => { }).then(async () =>{
@@ -142,7 +144,7 @@ export const RxDBProvider = ({ children }) => {
                 }
             }
         };
-    }, []);
+    }, [isAuthenticated]);
 
     return (
         <RxDBContext.Provider value={{ database, exportData, importData, syncStatus, error }}>

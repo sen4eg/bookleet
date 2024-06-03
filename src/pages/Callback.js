@@ -6,19 +6,16 @@ const OAuthCallback = () => {
     const [returnValue, setReturnValue] = useState("Processing...");
 
     useEffect(() => {
-        const hash = location.hash.substring(1);
-        console.log("HASH", hash);
-        const params = new URLSearchParams(hash);
-        const token = params.get('access_token');
-        const scope = params.get('scope');
-        const scopes = scope ? scope.split(' ') : [];
+        const params = new URLSearchParams(location.search);
+        const code = params.get('code');
+        const state = params.get('state');
 
-        if (token) {
-            window.opener.postMessage({ token, scopes }, window.location.origin);
+        if (code) {
+            window.opener.postMessage({ code, state }, window.location.origin);
         }
         setReturnValue("You need to provide appdata scope access to google drive to use this app. This window will be closed automatically.");
         setTimeout(() => {
-            window.close();
+            // window.close();
         }, 3000);
     }, [location]);
 

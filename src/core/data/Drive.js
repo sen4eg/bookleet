@@ -8,16 +8,20 @@ const Drive = {
 
     async tryRetrieveDb(setError) {
         try {
-            const file = await this.checkFileInAppData();
-            if (file) {
-                console.log('File exists:', file);
-                const content = await this.downloadFileContent(file.id);
-                console.log('File content:', content);
-                return content;
-            } else {
-                console.log('File does not exist');
-                return null;
-            }
+            const file = this.checkFileInAppData();
+            console.log("FILE", file);
+            file.then(async (data) => {
+                if (data) {
+                    console.log('File exists:', data);
+                    const content = await this.downloadFileContent(data.id);
+                    console.log('File content:', content);
+                    return content;
+                } else {
+                    console.log('File does not exist');
+                    return null;
+                }
+            })
+
         } catch (error) {
             setError(error);
         }
@@ -32,19 +36,29 @@ const Drive = {
         };
 
         const queryString = new URLSearchParams(params).toString();
-        const response = await fetch(`${url}?${queryString}`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${this._token}`
+        const fetchUrl = `${url}?${queryString}`;
+
+        try {
+            const response = await fetch(fetchUrl, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${this._token}`
+                }
+            });
+
+            if (!response.ok) {
+                console.log("RESPONSE", response);
+                console.log("RESPONSE", response.statusText);
+                console.error("Error fetching file list:", response.statusText);
+                return null;
             }
-        });
 
-        if (!response.ok) {
-            throw new Error(`Error fetching file list: ${response.statusText}`);
+            const data = await response.json();
+            return data.files.length > 0 ? data.files[0] : null;
+        } catch (error) {
+            console.error("Error in checkFileInAppData:", error);
+            throw error;
         }
-
-        const data = await response.json();
-        return data.files.length > 0 ? data.files[0] : null;
     },
 
     async downloadFileContent(fileId) {
@@ -125,7 +139,7 @@ const Drive = {
             },
             body: JSON.stringify(jsonData)
         });
-
+        console.log("RESPONSE", response);
         if (!response.ok) {
             throw new Error(`Error updating file: ${response.statusText}`);
         }
