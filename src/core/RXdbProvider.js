@@ -22,7 +22,7 @@ export const RxDBProvider = ({ children }) => {
     const [syncStatus, setSyncStatus] = useState('idle'); // 'idle', 'syncingIn', 'synced', 'syncingOut'
     const [error, setError] = useState(null);
 
-    const { clientId, token, isAuthenticated } = useOAuth();
+    const { clientId, token, auth_complete } = useOAuth();
 
     async function tryCreateNewBlankDb(onSuccess, onError) {
         if (database != null) {
@@ -99,38 +99,44 @@ export const RxDBProvider = ({ children }) => {
             }
         });
     }
-
-
-    useEffect(() => {
-        if (!isAuthenticated) {return;}
-        async function initializeDatabase() {
-            setSyncStatus('syncingIn');
-            console.log("INIT");
-            d.init(clientId, token, dbName);
-            const dbson = await d.tryRetrieveDb(e => setError(e));
+    const initializeDatabase = async () => {
+        setSyncStatus('syncingIn');
+        console.log("INIT");
+        d.init(clientId, token, dbName);
+        d.tryRetrieveDb(e => setError(e)).then(dbson => {
             if (dbson) {
                 try {
-                    await tryCreateNewBlankDb(() => { }, () => { });
-                    await database.importJSON(dbson);
-                    setSyncStatus('synced');
+                    tryCreateNewBlankDb(() => { }, () => { }).then(
+                        () => {
+                            database.importJSON(dbson);
+                            setSyncStatus('synced');
+                        }
+                    )
                     return;
                 } catch (error) {
                     setError(error);
                     console.log("AAA", error);
                 }
             }
-            await tryCreateNewBlankDb(() => { }, () => { }).then(async () =>{
-                // if (database) {
-                //     await populateDatabase(database);
-                //     await database.exportJSON().then(async (data) => {
-                //         console.log("DATA", data);
-                //         await d.saveJsonToAppData(data, setError);
-                //     });
-                //     setSyncStatus('synced');
-                // }
+            tryCreateNewBlankDb(() => { }, () => { }).then(async () =>{
+                if (database) {
+                    await populateDatabase(database);
+                    await database.exportJSON().then(async (data) => {
+                        console.log("DATA", data);
+                        await d.saveJsonToAppData(data, setError);
+                    });
+                    setSyncStatus('synced');
+                }
             })
 
-        }
+        })
+
+
+    }
+
+    useEffect(() => {
+        console.log("AUTH COMPLETE", auth_complete);
+        if (!auth_complete) {return;}
 
         initializeDatabase().then();
 
@@ -144,7 +150,7 @@ export const RxDBProvider = ({ children }) => {
                 }
             }
         };
-    }, [isAuthenticated]);
+    }, [auth_complete]);
 
     return (
         <RxDBContext.Provider value={{ database, exportData, importData, syncStatus, error }}>

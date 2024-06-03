@@ -6,24 +6,33 @@ const OAuthContext = createContext({});
 const OAuthProvider = ({ children, clientId }) => {
     const [token, setToken] = useState(localStorage.getItem('oauth_token'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('oauth_refresh_token'));
-    const [scopes, setScopes] = useState(localStorage.getItem('oauth_scopes')?.split(' ') || []);
+    // const [scopes, setScopes] = useState(localStorage.getItem('oauth_scopes')?.split(' ') || []);
     const [profile, setProfile] = useState({ email: "user" });
+    const [auth_complete, setAuthComplete] = useState(false);
 
     useEffect(() => {
-        refreshAuthToken().then(()=>
+        refreshAuthToken().then(()=> {
+            if (!auth_complete) return;
             fetchUserProfile(token, setProfile).then()
-        );
+        });
     }, []);
+
+    useEffect(() => {
+        if (!auth_complete) return;
+        fetchUserProfile(token, setProfile).then(
+            () => console.log("Profile fetched successfully"),
+            (error) => console.error("Error fetching profile:", error)
+        )
+    }, [auth_complete]);
 
     const handleSignInResult = (data) => {
         console.log("Token data:", data);
-        const { access_token, refresh_token, scope } = data;
+        const { access_token, refresh_token } = data;
         setToken(access_token);
         setRefreshToken(refresh_token);
-        setScopes(scope.split(' '));
+        // setScopes(scope.split(' '));
         localStorage.setItem('oauth_token', access_token);
         localStorage.setItem('oauth_refresh_token', refresh_token);
-        localStorage.setItem('oauth_scopes', scope);
     }
 
     const handleOAuthSignIn = async () => {
@@ -31,6 +40,7 @@ const OAuthProvider = ({ children, clientId }) => {
     };
 
     const refreshAuthToken = async () => {
+        setAuthComplete(false);
         if (!refreshToken) {
             console.error("No refresh token available");
             oauthSignOut();
@@ -38,7 +48,7 @@ const OAuthProvider = ({ children, clientId }) => {
         }
 
         try {
-            handleRefresh(refreshToken, setToken, clientId);
+            handleRefresh(refreshToken, setToken, clientId, setAuthComplete);
 
         } catch (error) {
             console.error("Error refreshing token:", error);
@@ -49,7 +59,6 @@ const OAuthProvider = ({ children, clientId }) => {
     const oauthSignOut = () => {
         setToken(null);
         setRefreshToken(null);
-        setScopes([]);
         setProfile({ email: "user" });
         localStorage.removeItem('oauth_token');
         localStorage.removeItem('oauth_refresh_token');
@@ -59,7 +68,7 @@ const OAuthProvider = ({ children, clientId }) => {
     const isAuthenticated = !!token;
 
     return (
-        <OAuthContext.Provider value={{ token, refreshToken, scopes, isAuthenticated, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile }}>
+        <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete }}>
             {children}
         </OAuthContext.Provider>
     );

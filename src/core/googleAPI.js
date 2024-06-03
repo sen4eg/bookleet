@@ -27,16 +27,29 @@ const handleCodeReceived = (code, handleSignInResult, clientId) => {
 }
 
 const fetchUserProfile = async (token, setProfile) => {
-    fetch("https://www.googleapis.com/oauth2/v1/userinfo", {
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // Use access_token here
-        },
-    }).then((response) => {response.json().then((data) => {
-        setProfile(data);
-    })});
-}
+    console.log("Fetching user profile with token:", token);
+    try {
+        fetch(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+            headers: {
+                // 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        }).then((response) => {
 
+            if (!response.ok) {
+                console.error("Error fetching user profile:", response.statusText);
+            }
+
+            response.json().then((data) => {
+            setProfile(data);
+            console.log("User profile:", data);});
+        });
+
+
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+    }
+}
 const signIn = async (clientId, handleSignInResult) => {
     const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
     const params = {
@@ -71,7 +84,7 @@ const signIn = async (clientId, handleSignInResult) => {
     window.addEventListener('message', handleMessage, );
 }
 
-const handleRefresh = (refreshToken, setToken, clientId) => {
+const handleRefresh = (refreshToken, setToken, clientId, setAuthComplete) => {
     fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
@@ -84,9 +97,11 @@ const handleRefresh = (refreshToken, setToken, clientId) => {
             client_secret: process.env.REACT_APP_GAPI_CLIENT_SECRET
         })
     }).then((response) => {response.json().then((data) => {
-        const { id_token } = data;
-        setToken(id_token);
-        localStorage.setItem('oauth_token', id_token);
+        const { access_token } = data;
+        setToken(access_token);
+        console.log("Refreshed token:", access_token);
+        localStorage.setItem('oauth_token', access_token);
+        setAuthComplete(true);
     })});
 }
 
