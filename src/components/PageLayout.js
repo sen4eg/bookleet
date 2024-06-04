@@ -1,28 +1,53 @@
-import React, { useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Menu from './Menu';
 import UserStatus from './UserStatus';
 import styles from './styles.module.scss';
+import openSoundFile from '../resources/open.mp3';
+import closeSoundFile from '../resources/close.mp3';
+import {useMenu} from '../core/MenuProvider';
 
 const PageLayout = ({ pageTitle, mainContent }) => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const {isMenuOpen, toggleMenu} = useMenu();
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
+    const handleMenuToggle = () => {
+        toggleMenu();
+        const openSound = new Audio(openSoundFile);
+        const closeSound = new Audio(closeSoundFile);
+        openSound.volume = 0.17;
+        closeSound.volume = 0.17;
+        if (isMenuOpen) {
+            openSound.play().catch((error) => {
+                console.error('Error playing sound:', error);
+            });
+        } else {
+            closeSound.play().catch((error) => {
+                console.error('Error playing sound:', error);
+            });
+        }
+
+        // Clean up the audio instances when the component is unmounted
+        return () => {
+            openSound.pause();
+            closeSound.pause();
+        };
     };
+
 
     return (
         <div className={styles['page-layout']}>
+
             <div className={`${styles['menu-container']} ${isMenuOpen ? styles['open'] : ''}`}>
-                <Menu />
+                <button className={`${styles['menu-toggle']}`}
+                        onClick={handleMenuToggle}>
+                    {isMenuOpen ? 'Close' : 'Open'} Menu
+                </button>
+                <Menu/>
             </div>
             <div className={styles['content-container']}>
-                <header className={styles['header']}>
-                    <button className={styles['menu-toggle']} onClick={toggleMenu}>
-                        {isMenuOpen ? 'Close' : 'Open'} Menu
-                    </button>
+                <header className={`${styles['header']} ${isMenuOpen ? styles['open'] : ''}`}>
                     <h1>{pageTitle}</h1>
                     <div>
-                        <UserStatus />
+                        <UserStatus/>
                     </div>
                 </header>
                 <main className={styles['main-content']}>

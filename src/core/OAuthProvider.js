@@ -3,7 +3,8 @@ import {signIn, handleRefresh, fetchUserProfile} from "./googleAPI";
 
 const OAuthContext = createContext({});
 
-const OAuthProvider = ({ children, clientId }) => {
+const OAuthProvider = ({ children }) => {
+    const clientId = process.env.REACT_APP_GAPI_CLIENT_ID;
     const [token, setToken] = useState(localStorage.getItem('oauth_token'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('oauth_refresh_token'));
     // const [scopes, setScopes] = useState(localStorage.getItem('oauth_scopes')?.split(' ') || []);

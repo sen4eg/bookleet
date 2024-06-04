@@ -1,3 +1,5 @@
+// helper functions for google oauth2
+
 const handleCodeReceived = (code, handleSignInResult, clientId) => {
     try {
         console.log("Code received:", code);
