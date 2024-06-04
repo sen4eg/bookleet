@@ -1,17 +1,19 @@
 import styles from './styles.module.scss';
 import {useState} from "react";
 import {useData} from "../core/RXdbProvider";
-import {Navigate} from "react-router-dom";
 import {useOAuth} from "../core/OAuthProvider";
+import SyncIndicator from "./SyncIndicator";
 
 
 //  <header className={styles['header']}>
+
 
 const UserStatus = ({ connection }) => {
     // Define state for open/closed status
     const [isOpen, setIsOpen] = useState(false);
     const {syncStatus, } = useData();
     const {oauthSignOut, profile} = useOAuth();
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
     // Define function to toggle open/close status
     const toggleOpen = () => {
         setIsOpen(!isOpen);
@@ -27,22 +29,23 @@ const UserStatus = ({ connection }) => {
 
             {/* Render user icon and syncing status when closed and connection is false */}
             {(
-                <div>
-                    {/* Render user icon here */}
-                    {/*<img className={styles["user-icon"]} href={profile}/>*/}
-                    {/* Render syncing status here */}
-                    <p>{syncStatus}</p>
-                </div>
+                <SyncIndicator syncStatus={syncStatus} connected={isOnline}/>
+                // <div>
+                //     {/* Render user icon here */}
+                //     {/*<img className={styles["user-icon"]} href={profile}/>*/}
+                //     {/* Render syncing status here */}
+                //     <p>{syncStatus}</p>
+                // </div>
             )}
 
 
             {isOpen && (
-                <div>
+                <>
                     <p>{profile.name}</p>
                     <button onClick={()=>{
                         oauthSignOut();
                     }}>Log Out</button>
-                </div>
+                </>
             )}
         </div>
     );
