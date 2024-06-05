@@ -67,9 +67,9 @@ const OAuthProvider = ({ children }) => {
         localStorage.removeItem('oauth_scopes');
     };
 
-    const isAuthenticated = !!token;
+
     return (
-        <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete }}>
+        <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated:!!token, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete }}>
             {children}
         </OAuthContext.Provider>
     );

@@ -13,7 +13,7 @@ const UserStatus = ({ connection }) => {
     const [isOpen, setIsOpen] = useState(false);
     const {syncStatus, } = useData();
     const {oauthSignOut, profile} = useOAuth();
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [isOnline] = useState(navigator.onLine);
     // Define function to toggle open/close status
     const toggleOpen = () => {
         setIsOpen(!isOpen);

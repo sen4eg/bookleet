@@ -8,22 +8,20 @@ const Drive = {
 
     async tryRetrieveDb(setError) {
         try {
-            const file = this.checkFileInAppData();
+            const file = await this.checkFileInAppData();
             console.log("FILE", file);
-            file.then(async (data) => {
-                if (data) {
-                    console.log('File exists:', data);
-                    const content = await this.downloadFileContent(data.id);
-                    console.log('File content:', content);
-                    return content;
-                } else {
-                    console.log('File does not exist');
-                    return null;
-                }
-            })
-
+            if (file) {
+                console.log('File exists:', file);
+                const result = await this.downloadFileContent(file.id);
+                console.log("RESULT", result);
+                return result;
+            } else {
+                console.log('File does not exist');
+                return null;
+            }
         } catch (error) {
             setError(error);
+            return null;
         }
     },
 
@@ -74,7 +72,7 @@ const Drive = {
             throw new Error(`Error downloading file content: ${response.statusText}`);
         }
 
-        return await response.json();
+        return response.json();
     },
 
     async saveJsonToAppData(jsonData, setError, onsucces) {

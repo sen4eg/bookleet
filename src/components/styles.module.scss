@@ -93,7 +93,6 @@ body {
   transform: translateX(-32px);
   list-style-type: none;
   a {
-    text-underline: none;
     text-decoration: none;
     color: #fff;
   }
@@ -154,4 +153,189 @@ body {
 .video-frame{
   width: 85vw;
   height: 85vh;
+}
+@keyframes hoverAnimationH {
+  0% {
+    transform: translateX(9%)scaleX(0.7);
+  }
+  50% {
+    transform: scaleX(1.3);
+  }
+  100% {
+    transform: translateX(9%)scaleX(0.7);
+  }
+}
+
+@keyframes hoverAnimationY {
+  0% {
+    transform: translateY(9%)scaleY(0.7);
+  }
+  50% {
+    transform: scaleY(1.3);
+  }
+  100% {
+    transform: translateY(9%)scaleY(0.7);
+  }
+}
+
+
+// -- BOOKS --
+
+.add-button{
+  border: none;
+  border-radius: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    .horizontal-line{
+      animation: hoverAnimationH 1s infinite linear; // Apply rotation animation on hover
+    }
+    .vertical-line{
+      animation: hoverAnimationY 1s infinite linear; // Apply rotation animation on hover
+    }
+    animation: rotateAnimation 3s infinite linear // Apply rotation animation on hover
+
+  }
+  &:not(:hover) {
+    animation: rotateReset 0.3s linear; // Apply reset animation when not hovered
+  }
+
+  :hover {
+
+  }
+
+  @keyframes rotateAnimation {
+    0% {
+      transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    }
+    100% {
+      transform: rotateX(360deg) rotateY(360deg) rotateZ(0deg);
+    }
+  }
+
+  @keyframes rotateReset {
+    0% {
+      transform: rotateX(360deg) rotateY(360deg) rotateZ(0deg);
+    }
+    100% {
+      transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    }
+  }
+}
+
+.horizontal-line {
+  &:hover{
+    animation: hoverAnimation 3s infinite linear; // Apply rotation animation on hover
+  }
+
+}
+
+
+.books-area{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-container {
+display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 16px;
+  input {
+    height: 48px;
+    width: 85vw;
+    padding: 8px;
+    margin: 8px;
+    border-radius: 4px;
+    border: none;
+    font-size: 24px;
+  }
+}
+
+
+.list-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.modal {
+  display: none; /* Initially hide the modal */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+
+
+  &.show{
+    display: block;
+  }
+
+  .close {
+    color: #ccc; /* Light gray color for the close button */
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: #fff; /* Change color on hover/focus */
+    text-decoration: none; /* Remove underline */
+    cursor: pointer; /* Add pointer cursor */
+  }
+
+  .input-text,
+  .input-select {
+    width: 100%;
+    height: 35px;
+    padding: 10px -28px 10px 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 4px;
+    background-color: #370808; /* Dark secondary color */
+    color: #fff; /* White text color */
+  }
+
+  .input-checkbox {
+    margin-right: 5px;
+  }
+
+  .button {
+    background-color: #370808; /* Dark secondary color */
+    color: #fff; /* White text color */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .button:hover {
+    background-color: #301919; /* Dark primary color */
+  }
+}
+
+.modal-content {
+  background-color: #301919; /* Dark primary color */
+  margin: 15% auto; /* Center the modal vertically and horizontally */
+  padding: 20px;
+  border-radius: 8px;
+  width: 70vw;
+  height: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add a shadow effect */
+  color: #fff; /* White text color */
 }

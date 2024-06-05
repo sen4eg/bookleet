@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 const cloudIconPaths = [
     "m50 92.551c-0.82812 0-1.5-0.67188-1.5-1.5 0-1.1289-0.92188-2.0391-2.0391-2.0391h-26c-0.82813 0-1.5-0.67188-1.5-1.5v-44.359c0-0.82812 0.67187-1.5 1.5-1.5h23.77c2.3516 0 4.4492 1.1211 5.7812 2.8594 1.3281-1.7383 3.4297-2.8594 5.7812-2.8594h23.77c0.82812 0 1.5 0.67188 1.5 1.5v44.359c0 0.82812-0.67188 1.5-1.5 1.5h-26c-1.1289 0-2.0391 0.92188-2.0391 2.0391 0 0.82812-0.67188 1.5-1.5 1.5zm-28.039-6.5391h24.5c1.3789 0 2.6289 0.55859 3.5391 1.4609 0.91016-0.89844 2.1602-1.4609 3.5391-1.4609h24.5v-41.359h-22.27c-2.3594 0-4.2812 1.9219-4.2812 4.2812v1.9609c0 0.82812-0.67188 1.5-1.5 1.5s-1.5-0.67188-1.5-1.5v-1.9609c0-2.3594-1.9219-4.2812-4.2812-4.2812h-22.27v41.359z",
@@ -46,7 +46,7 @@ const drawCloud = (ctx, dimension, color) => {
 const drawSynched = (ctx, dimension) => {
     ctx.clearRect(0, 0, dimension, dimension);
     ctx.fillStyle = 'white';
-    drawCloud(ctx, dimension);
+    drawCloud(ctx, dimension, 'white');
 };
 
 const drawRedCircle = (ctx, dimension) => {
@@ -95,11 +95,12 @@ const drawParticles = (ctx, particles, color) => {
     });
 };
 
-const animateSyncing = (ctx, dimension, drawDirection) => {
+const animateSyncing = (ctx, dimension, drawDirection, setAnimationFrame) => {
     let particles = Array.from({ length: getRandomInt(3, 7) }, () => createParticle(dimension, drawDirection));
 
     const animate = () => {
         ctx.clearRect(0, 0, dimension, dimension);
+
         drawCloud(ctx, dimension,
             (drawDirection === 'in') ?
                 '#fbaa4b' :
@@ -116,7 +117,8 @@ const animateSyncing = (ctx, dimension, drawDirection) => {
         }
 
         drawParticles(ctx, particles, drawDirection === 'in' ? 'orange' : 'green');
-        requestAnimationFrame(animate);
+        const id = requestAnimationFrame(animate);
+        setAnimationFrame(id);
     };
 
     animate();
@@ -124,25 +126,32 @@ const animateSyncing = (ctx, dimension, drawDirection) => {
 
 const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
     const canvasRef = useRef(null);
-
+    const [animationFrame, setAnimationFrame] = useState(null);
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         const status = syncStatus.toLowerCase();
 
 
+        const stopAnimation = () => {
+            if (!!animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+        }
+
         if (!!connected) {
             drawCloud(ctx, dimension, 'white');
         }
-
         if (status === 'synced') {
+            stopAnimation();
             drawSynched(ctx, dimension);
         } else if (status === 'syncingin') {
-            animateSyncing(ctx, dimension, 'in');
+            animateSyncing(ctx, dimension, 'in', setAnimationFrame);
         } else if (status === 'syncingout') {
-            animateSyncing(ctx, dimension, 'out');
+            animateSyncing(ctx, dimension, 'out', setAnimationFrame);
         } else {
             drawRedCircle(ctx, dimension);
+            stopAnimation();
         }
 
     }, [syncStatus, dimension, connected]);

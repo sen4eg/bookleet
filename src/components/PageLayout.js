@@ -32,6 +32,20 @@ const PageLayout = ({ pageTitle, mainContent }) => {
         };
     };
 
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (isMenuOpen && !event.target.closest(`.${styles['menu-container']}`)) {
+                toggleMenu();
+            }
+        };
+
+        document.addEventListener('click', handleOutsideClick);
+
+        return () => {
+            document.removeEventListener('click', handleOutsideClick);
+        };
+    }, []);
+
 
     return (
         <div className={styles['page-layout']}>

@@ -7,6 +7,8 @@ const Login = () => {
 
     const {isAuthenticated, oauthSignIn} = useOAuth();
 
+    console.log("isAuthenticated", isAuthenticated);
+
     return (
         <>
         {isAuthenticated && (<Navigate to="/"></Navigate>)}
