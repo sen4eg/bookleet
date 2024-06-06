@@ -21,6 +21,7 @@ class Entity {
         if (data[this.primaryKey] === undefined) {
             preparedData[this.primaryKey] = uuidv4();
         }
+        preparedData.timestamp = new Date().toISOString();
         this.data = preparedData;
         return preparedData;
     }
@@ -34,7 +35,7 @@ class Entity {
         if (this.data[this.primaryKey] && db.collections[this.collectionName]) {
             const record = await Entity.find(db, this.collectionName, this.data[this.primaryKey]);
             if (record) {
-                await record.update({ $set: this.data });
+                await record.update({ $set: this.prepareData() });
             }
         }
     }

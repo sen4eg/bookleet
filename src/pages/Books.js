@@ -60,7 +60,7 @@ const Books = () => {
 
     const fetchBooks = async () => {
         Entity.findAll(database, 'books').then((books) => {
-            setBooks(books);
+            setBooks(books.sort((a, b) => +new Date(b._data.timestamp) - new Date(a._data.timestamp)));
             console.log("books", books);
         });
     }

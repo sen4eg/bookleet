@@ -80,10 +80,10 @@ const Drive = {
             console.log('Saving JSON to AppData');
             const file = await this.checkFileInAppData();
             if (file) {
-                await(await this.updateFileInAppData(file.id, jsonData)).then(onsucces);
+                await this.updateFileInAppData(file.id, jsonData).then(onsucces);
                 // console.log('File updated successfully');
             } else {
-                await(await this.createFileInAppData(jsonData)).then(onsucces);
+                await this.createFileInAppData(jsonData).then(onsucces);
                 // console.log('File created successfully');
             }
         } catch (error) {

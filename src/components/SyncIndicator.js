@@ -95,9 +95,8 @@ const drawParticles = (ctx, particles, color) => {
     });
 };
 
-const animateSyncing = (ctx, dimension, drawDirection, setAnimationFrame, stopPrevious) => {
+const animateSyncing = (ctx, dimension, drawDirection, setAnimationFrame) => {
     let particles = Array.from({ length: getRandomInt(3, 7) }, () => createParticle(dimension, drawDirection));
-    stopPrevious();
     const animate = () => {
         ctx.clearRect(0, 0, dimension, dimension);
 
@@ -127,17 +126,18 @@ const animateSyncing = (ctx, dimension, drawDirection, setAnimationFrame, stopPr
 const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
     const canvasRef = useRef(null);
     const [animationFrame, setAnimationFrame] = useState(null);
+    const stopAnimation = () => {
+        if (!!animationFrame) {
+            cancelAnimationFrame(animationFrame);
+        }
+    }
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         const status = syncStatus.toLowerCase();
 
 
-        const stopAnimation = () => {
-            if (!!animationFrame) {
-                cancelAnimationFrame(animationFrame);
-            }
-        }
+
 
         if (!!connected) {
             drawCloud(ctx, dimension, 'white');
@@ -156,6 +156,12 @@ const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
 
     }, [syncStatus, dimension, connected]);
 
+
+    useEffect(() => {
+        if (syncStatus === 'synced') {
+            stopAnimation();
+        }
+    }, [syncStatus]);
     return (
         <div>
             <canvas ref={canvasRef} width={dimension} height={dimension}></canvas>

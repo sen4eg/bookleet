@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createRxDatabase } from 'rxdb';
 import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
+import {getRxStorageMemory} from 'rxdb/plugins/storage-memory';
+
 import { RxDBJsonDumpPlugin } from 'rxdb/plugins/json-dump';
 import { addRxPlugin } from 'rxdb';
 
@@ -11,8 +13,7 @@ addRxPlugin(RxDBJsonDumpPlugin);
 
 const RxDBContext = createContext(null);
 
-
-const dbName = 'bookleet-db-v1';
+const dbName = 'bookleet-db-v2';
 
 export const RxDBProvider = ({ children }) => {
     const [database, setDatabase] = useState(null);
@@ -20,7 +21,9 @@ export const RxDBProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const { clientId, token, auth_complete } = useOAuth();
     const [databaseReady, setDatabaseReady] = useState(false);
-    console.log("auth_complete", database);
+    const [subscription, setSubscription] = useState(null);
+    const [previousData, setPreviousData] = useState(null);
+
     const setDatabaseSchema = async (db) => {
         const tempBookSchema = {
             version: 0,
@@ -77,10 +80,12 @@ export const RxDBProvider = ({ children }) => {
                 console.log('Creating database');
                 const db = await createRxDatabase({
                     name: dbName,
-                    storage: getRxStorageDexie('idb'),
+                    // storage: getRxStorageDexie('idb'),
+                    storage: getRxStorageMemory(),
                     multiInstance: false,
+                    eventReduce: true
                 });
-                console.log('Database created');
+                console.log('Database created', db);
 
                 if (mounted) {
                     setDatabase(db);
@@ -99,6 +104,34 @@ export const RxDBProvider = ({ children }) => {
     }, [auth_complete, database]);
 
 
+    const handleDataExport = () => {
+        console.log('Change detected');
+
+        if (!database) return;
+        setSyncStatus('syncingOut')
+        database.exportJSON().then((json) => {
+            d.saveJsonToAppData(json,setError, ()=>setSyncStatus('synced'));
+            console.log('Exported database', json);
+        });
+
+    }
+
+    const setObserver = () => {
+        if (!database) return;
+        const sub = database.books.$.subscribe((changeEvent) => {
+            console.log('Change detected', changeEvent);
+            if (previousData && previousData.toJSON() === changeEvent.toJSON()) return;
+            handleDataExport();
+            setPreviousData(changeEvent);
+        });
+        setSubscription(sub);
+    }
+
+    const removeObserver = () => {
+        if (!database || subscription===null) return;
+        subscription.unsubscribe();
+    }
+
     useEffect(() => {
         let mounted = true;
         if (!auth_complete) return;
@@ -108,7 +141,6 @@ export const RxDBProvider = ({ children }) => {
             try {
                 console.log('Syncing database');
                 setSyncStatus('syncingIn');
-
                 const remoteDb = await d.tryRetrieveDb(setError);
 
                 if (remoteDb) {
@@ -121,12 +153,13 @@ export const RxDBProvider = ({ children }) => {
                     console.log('No remote database found');
                 }
                 console.log('Database synced');
-
+                setObserver();
                 setSyncStatus('synced');
             } catch (error) {
                 setError(error);
             }
         };
+        removeObserver();
 
         syncDatabase();
 

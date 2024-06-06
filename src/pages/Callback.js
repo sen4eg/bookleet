@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { useLocation } from 'react-router-dom';
 
+
+// This component is used to handle the OAuth callback from Google
 const OAuthCallback = () => {
     const location = useLocation();
     const [returnValue, setReturnValue] = useState("Processing...");
