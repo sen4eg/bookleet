@@ -6,9 +6,10 @@ import {debugLog} from "./utils";
 const PrivateScope = ({ children }) => {
     const { auth_complete, refreshToken } = useOAuth();
     debugLog("isAuthenticated", auth_complete);
+    const secured = process.env.REACT_APP_SECURED === "true";
     return (
         <div>
-            {!(auth_complete || !!refreshToken) && <Navigate to="/login" />}
+            {secured && !(auth_complete || !!refreshToken) && <Navigate to="/login" />}
             {children}
         </div>
     );

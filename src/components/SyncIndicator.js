@@ -137,9 +137,6 @@ const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
         const ctx = canvas.getContext('2d');
         const status = syncStatus.toLowerCase();
 
-        console.log("connected?", connected);
-
-
         if (connected) {
             drawCloud(ctx, dimension, 'white');
         } else {

@@ -280,9 +280,10 @@ display: flex;
   border: 3px solid $primary-color; // Add padding around the thumb
 }
 
-.list-container::-webkit-scrollbar-thumb:hover {
-  background-color: $dark-secondary-color;
-}
+// mozila disaproved
+//.list-container::-webkit-scrollbar-thumb:hover {
+//  background-color: $dark-secondary-color;
+//}
 
 .list-container::-webkit-scrollbar-track {
   background: $primary-color;

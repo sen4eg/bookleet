@@ -74,7 +74,6 @@ const signIn = async (clientId, handleSignInResult) => {
         if (event.origin === window.location.origin) {
             const code = event.data.code;
             if (!!code) {
-                console.log("Code received:", code);
                 setTimeout(() => {
                     handleCodeReceived(code, (...a)=>handleSignInResult(...a), clientId);
                 }, 0);

@@ -84,7 +84,6 @@ const OAuthProvider = ({ children }) => {
     }, [auth_complete]);
 
     const [isOnline, setIsOnline] = useState(navigator.onLine);
-    console.log("status:", profile);
 
     useEffect(() => {
         const handleOnlineStatusChange = (status) => {
