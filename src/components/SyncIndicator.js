@@ -95,9 +95,9 @@ const drawParticles = (ctx, particles, color) => {
     });
 };
 
-const animateSyncing = (ctx, dimension, drawDirection, setAnimationFrame) => {
+const animateSyncing = (ctx, dimension, drawDirection, setAnimationFrame, stopPrevious) => {
     let particles = Array.from({ length: getRandomInt(3, 7) }, () => createParticle(dimension, drawDirection));
-
+    stopPrevious();
     const animate = () => {
         ctx.clearRect(0, 0, dimension, dimension);
 
@@ -146,9 +146,9 @@ const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
             stopAnimation();
             drawSynched(ctx, dimension);
         } else if (status === 'syncingin') {
-            animateSyncing(ctx, dimension, 'in', setAnimationFrame);
+            animateSyncing(ctx, dimension, 'in', setAnimationFrame, stopAnimation);
         } else if (status === 'syncingout') {
-            animateSyncing(ctx, dimension, 'out', setAnimationFrame);
+            animateSyncing(ctx, dimension, 'out', setAnimationFrame, stopAnimation);
         } else {
             drawRedCircle(ctx, dimension);
             stopAnimation();

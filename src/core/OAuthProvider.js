@@ -16,7 +16,7 @@ const OAuthProvider = ({ children }) => {
             if (!auth_complete) return;
             fetchUserProfile(token, setProfile).then()
         });
-    }, []);
+    }, [auth_complete]);
 
     useEffect(() => {
         if (!auth_complete) return;
@@ -43,6 +43,7 @@ const OAuthProvider = ({ children }) => {
 
     const refreshAuthToken = async () => {
         setAuthComplete(false);
+        console.log("Refreshing token");
         if (!refreshToken) {
             console.error("No refresh token available");
             oauthSignOut();
@@ -65,6 +66,7 @@ const OAuthProvider = ({ children }) => {
         localStorage.removeItem('oauth_token');
         localStorage.removeItem('oauth_refresh_token');
         localStorage.removeItem('oauth_scopes');
+        setAuthComplete(false);
     };
 
 

@@ -1,4 +1,3 @@
-import './App.css';
 import AppRouter from './AppRouter';
 import {MenuProvider} from "./MenuProvider";
 function App() {

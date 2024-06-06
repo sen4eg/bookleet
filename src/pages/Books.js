@@ -24,20 +24,28 @@ const Books = () => {
     // Function to add a new book
     const addBook = (book) => {
         if (!book && !database) return;
-        console.log("book", book);
         const bookObj = new BookCl(book);
+        console.log("bookObj", bookObj);
         bookObj.persist(database).then(() => {
-            console.log("persisted");
+            fetchBooks().then();
+            closeModal();
         });
-        // // fetchBooks();
-        // // closeModal();
     };
 
     const editBook = (book) => {
-        // Entity.persist(database, 'books', book).then(() => {
-        //     fetchBooks();
-        //     closeModal();
-        // });
+        if (!book && !database) return;
+        const bookObj = new BookCl(book);
+        bookObj.update(database).then(() => {
+            fetchBooks();
+            closeModal();
+        });
+    }
+
+    const deleteBook = (book) => {
+        const bookObj = new BookCl(book);
+        bookObj?.delete(database).then(() => {
+            fetchBooks();
+        });
     }
 
     const closeModal = () => {
@@ -58,8 +66,7 @@ const Books = () => {
     }
 
     useEffect(() => {
-        if (!database || syncStatus === "syncingIn") return;
-        console.log(syncStatus + " sync aaa");
+        if (!database) return;
         console.log("fetching books");
         fetchBooks();
 
@@ -80,7 +87,10 @@ const Books = () => {
                 </div>
                 <div className={styles['list-container']}>
                     {books.map(book => (
-                        <Book  key={book?._data?.id} book = {book}/>
+                        <Book  key={book?._data?.id} book = {book}
+                               onDelete = {()=>deleteBook(book)}
+                                 onEdit = {()=>openModal(book)}
+                        />
                     ))}
                 </div>
             </div>

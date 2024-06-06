@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { rxdb }   from "rxdb";
-
-
+import {addRxPlugin} from "rxdb";
+import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
+import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
+addRxPlugin(RxDBQueryBuilderPlugin);
+addRxPlugin(RxDBUpdatePlugin);
 // In theory this should be well expandable for using subtables and doing various joins
 // The real purpose of this is of course is mandatory oop :>
 
@@ -25,15 +27,23 @@ class Entity {
 
     async persist(db) {
 
-        console.log("PERSISTING", this.prepareData());
         await db.collections[this.collectionName].insert(this.prepareData());
+    }
+
+    async update(db) {
+        if (this.data[this.primaryKey] && db.collections[this.collectionName]) {
+            const record = await Entity.find(db, this.collectionName, this.data[this.primaryKey]);
+            if (record) {
+                await record.update({ $set: this.data });
+            }
+        }
     }
 
     async delete(db) {
         if (this.data[this.primaryKey] && db.collections[this.collectionName]) {
             const record = await Entity.find(db, this.collectionName, this.data[this.primaryKey]);
             if (record) {
-                await db.collections[this.collectionName].remove(record);
+                await record.remove();
             }
         }
     }
@@ -41,9 +51,7 @@ class Entity {
     static async findAll(db, collectionName) {
         const collection = db[collectionName];
 
-        console.log("FINDING ALL", db, db.collections, collection, collectionName);
         if (!!!collection) return [];
-        console.log("FINDING ALL321312", collection);
         return await collection.find().exec();
     }
 

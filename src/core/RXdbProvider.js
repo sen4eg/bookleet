@@ -9,11 +9,10 @@ import { useOAuth } from "./OAuthProvider";
 
 addRxPlugin(RxDBJsonDumpPlugin);
 
-const RxDBContext = createContext();
+const RxDBContext = createContext(null);
 
-export const useData = () => useContext(RxDBContext);
 
-const dbName = 'bookleet-db';
+const dbName = 'bookleet-db-v1';
 
 export const RxDBProvider = ({ children }) => {
     const [database, setDatabase] = useState(null);
@@ -21,7 +20,7 @@ export const RxDBProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const { clientId, token, auth_complete } = useOAuth();
     const [databaseReady, setDatabaseReady] = useState(false);
-
+    console.log("auth_complete", database);
     const setDatabaseSchema = async (db) => {
         const tempBookSchema = {
             version: 0,
@@ -70,7 +69,7 @@ export const RxDBProvider = ({ children }) => {
 
     useEffect(() => {
         let mounted = true;
-
+        if (!auth_complete) return;
         const prepareDatabase = async () => {
             if (!auth_complete || database) return;
 
@@ -102,10 +101,10 @@ export const RxDBProvider = ({ children }) => {
 
     useEffect(() => {
         let mounted = true;
-
+        if (!auth_complete) return;
         const syncDatabase = async () => {
             if (!database || !databaseReady) return;
-
+            if (!mounted) return;
             try {
                 console.log('Syncing database');
                 setSyncStatus('syncingIn');
@@ -134,11 +133,18 @@ export const RxDBProvider = ({ children }) => {
         return () => {
             mounted = false;
         };
-    },[databaseReady]);
-
+    },[auth_complete, databaseReady]);
     return (
-        <RxDBContext.Provider value={{ database, syncStatus, error }}>
-            {database ? children : null}
+        <RxDBContext.Provider value={ {database, syncStatus, error} }>
+            {children}
         </RxDBContext.Provider>
     );
 };
+
+export const useData = () =>{
+    const context = useContext(RxDBContext);
+    if (!context) {
+        throw new Error('useData must be used within an RxDBProvider');
+    }
+    return context;
+}
