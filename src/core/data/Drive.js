@@ -11,10 +11,8 @@ const Drive = {
     async tryRetrieveDb(setError) {
         try {
             const file = await this.checkFileInAppData();
-            if (file) {
-                const result = await this.downloadFileContent(file.id);
-
-                return result;
+            if (!!file) {
+                return await this.downloadFileContent(file.id);
             } else {
                 debugLog('File does not exist');
                 return null;

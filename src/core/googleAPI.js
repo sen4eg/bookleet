@@ -61,7 +61,7 @@ const signIn = async (clientId, handleSignInResult) => {
         'response_type': 'code',
         'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile',
         'access_type': 'offline',
-        'include_granted_scopes': 'true',
+        'prompt': 'consent',
         'state': encodeURIComponent('shaky-shaky')
     };
 

@@ -12,7 +12,7 @@ addRxPlugin(RxDBJsonDumpPlugin);
 
 const RxDBContext = createContext(null);
 
-const dbName = 'bookleet-db-v2';
+const dbName = 'bookleet-db-v3';
 
 export const RxDBProvider = ({ children }) => {
     const [database, setDatabase] = useState(null);
@@ -142,7 +142,8 @@ export const RxDBProvider = ({ children }) => {
         return () => {
             removeObserver();
         };
-    }, [auth_complete, database, databaseReady, remoteDb, removeObserver, setObserver]);
+        // eslint-disable-next-line
+    }, [auth_complete, databaseReady ]);
 
     useEffect(() => {
         if (!isOnline) return;
