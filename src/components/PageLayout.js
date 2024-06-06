@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import Menu from './Menu';
 import UserStatus from './UserStatus';
 import styles from './styles.module.scss';
@@ -44,6 +44,7 @@ const PageLayout = ({ pageTitle, mainContent }) => {
         return () => {
             document.removeEventListener('click', handleOutsideClick);
         };
+        // eslint-disable-next-line
     }, []);
 
 

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PageLayout from "../components/PageLayout";
 import styles from '../components/styles.module.scss';
 

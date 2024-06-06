@@ -26,4 +26,4 @@ npm start
 
 ### LICENSE
 
-License hereby is almost granted, check the [License](LICENSE.md) file for more details.
+License hereby is granted for those who checked the [License](LICENSE.md) file and agreed on terms.

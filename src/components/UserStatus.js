@@ -1,5 +1,5 @@
 import styles from './styles.module.scss';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useData} from "../core/RXdbProvider";
 import {useOAuth} from "../core/OAuthProvider";
 import SyncIndicator from "./SyncIndicator";

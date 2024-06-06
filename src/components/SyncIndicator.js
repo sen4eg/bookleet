@@ -157,7 +157,7 @@ const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
             drawRedCircle(ctx, dimension);
             stopAnimation();
         }
-
+//eslint-disable-next-line
     }, [syncStatus, dimension, connected]);
 
 
@@ -165,6 +165,7 @@ const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
         if (syncStatus === 'synced') {
             stopAnimation();
         }
+        // eslint-disable-next-line
     }, [syncStatus]);
     return (
         <div>

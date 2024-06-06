@@ -6,7 +6,6 @@ import Book from "../components/Book";
 import BookModal from "../components/BookModal";
 import {useData} from "../core/RXdbProvider";
 import {debugLog} from "../core/utils";
-import {useOAuth} from "../core/OAuthProvider";
 import {EntityManager} from "../core/data/Entities";
 
 const Entity = EntityManager.Entity;
