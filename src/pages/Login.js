@@ -1,7 +1,7 @@
 import {Navigate} from "react-router-dom";
 import {useOAuth} from "../core/OAuthProvider";
 import {useEffect, useState} from "react";
-
+import styles from "../components/styles.module.scss";
 
 
 const Login = () => {
@@ -18,9 +18,9 @@ const Login = () => {
     return (
         <>
         {redirect && (<Navigate to="/"></Navigate>)}
-        <div>
+        <div className={styles["login-container"]}>
             <h3>To use our website please:</h3>
-            <button onClick={oauthSignIn}>Login with Google</button>
+            <button className={styles["log-button"]} onClick={oauthSignIn}>Login with Google</button>
 
 
         </div>

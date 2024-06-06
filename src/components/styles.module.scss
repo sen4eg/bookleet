@@ -141,7 +141,6 @@ body {
   cursor: pointer;
   transform: translateX(208px);
   color: $primary-color;
-
 }
 
 .menu-toggle:hover {
@@ -263,6 +262,7 @@ display: flex;
   max-height: 650px;
   overflow-y: auto;
   padding-top: 64px;
+  padding-right: 24px;
   justify-content: flex-start;
   align-items: center;
   &:hover {
@@ -440,3 +440,73 @@ $white-color: #fff;
     color: $white-color;
   }
 }
+
+@media (max-width: 915px) {
+  .header {
+    padding: 24px;
+    text-align: center;
+  }
+
+  .content-container {
+    margin-left: 0; /* Ensure it doesn't move on side panel open */
+  }
+
+  .search-container input {
+    width: 80vw; /* Adjust search input width */
+  }
+
+  .list-container {
+    width: 85vw; /* Adjust list container width */
+  }
+
+  .modal-content {
+    width: 90vw; /* Adjust modal width */
+  }
+
+  .user-status {
+    right: 16px; /* Adjust user status position */
+  }
+
+  .main-content {
+    padding: 16px; /* Adjust main content padding */
+  }
+
+  .search-container {
+    input {
+      width: 65vw; /* Adjust search input width */
+    }
+  }
+}
+
+
+// -- LOGIN --
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  button {
+    margin-top: 16px;
+    min-width: 350px;
+    width: 17vw;
+  }
+}
+
+.log-button{
+  background-color: lighten($dark-secondary-color, 10%);
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  //width: 15vw;
+  //min-width: 350px;
+  cursor: pointer;
+  color: mix(lighten($primary-color, 10%), white, 50%);
+  &:hover {
+    background-color: darken($secondary-color, 10%);
+  }
+}
+
+

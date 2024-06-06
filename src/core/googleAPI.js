@@ -1,7 +1,7 @@
 import {debugLog} from "./utils";
 // helper functions for google oauth2
 
-const handleCodeReceived = (code, handleSignInResult, clientId) => {
+const handleCodeReceived = async (code, handleSignInResult, clientId) => {
     try {
         debugLog("Code received:", code);
         const params = new URLSearchParams();
@@ -12,7 +12,7 @@ const handleCodeReceived = (code, handleSignInResult, clientId) => {
         params.append('client_secret', process.env.REACT_APP_GAPI_CLIENT_SECRET);
 
         const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/token';
-        fetch(oauth2Endpoint, {
+        return await fetch(oauth2Endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -23,7 +23,7 @@ const handleCodeReceived = (code, handleSignInResult, clientId) => {
             response.json().then((data) => {
                 handleSignInResult(data);
             });
-        });
+        }).catch();
     } catch (error) {
         console.error("Error fetching token or user profile:", error);
     }
@@ -46,7 +46,7 @@ const fetchUserProfile = async (token, setProfile) => {
             response.json().then((data) => {
             setProfile(data);
             debugLog("User profile:", data);});
-        });
+        }).catch()
 
 
     } catch (error) {
@@ -71,14 +71,15 @@ const signIn = async (clientId, handleSignInResult) => {
     const oauthWindow = window.open(oauthUrl, 'oauthWindow', 'width=600,height=700');
 
     const handleMessage = (event) => {
-        if (event.origin === window.location.origin ) {
-            if (!!event.data.code){
-                const { code } = event.data;
-                debugLog("Received code:", event.data);
+        if (event.origin === window.location.origin) {
+            const code = event.data.code;
+            if (!!code) {
+                console.log("Code received:", code);
+                setTimeout(() => {
+                    handleCodeReceived(code, (...a)=>handleSignInResult(...a), clientId);
+                }, 0);
                 oauthWindow.close();
-                handleCodeReceived(code,handleSignInResult, clientId);
             }
-            oauthWindow.close();
         }
     };
 
@@ -105,7 +106,7 @@ const handleRefresh = (refreshToken, setToken, clientId, setAuthComplete) => {
         debugLog("Refreshed token:", access_token);
         localStorage.setItem('oauth_token', access_token);
         setAuthComplete(true);
-    })});
+    })}).catch(() => {})
 }
 
 

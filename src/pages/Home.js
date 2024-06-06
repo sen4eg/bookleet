@@ -2,10 +2,12 @@
 
 import PageLayout from "../components/PageLayout";
 import styles from "../components/styles.module.scss";
-import {Entity} from "../core/data/Entities";
 import {useEffect, useState} from "react";
 import {useData} from "../core/RXdbProvider";
 import Book from "../components/Book";
+import {EntityManager} from "../core/data/Entities";
+
+const Entity = EntityManager.Entity;
 
 const Home = () => {
     const { database, syncStatus} = useData();

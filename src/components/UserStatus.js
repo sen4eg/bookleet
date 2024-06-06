@@ -1,5 +1,5 @@
 import styles from './styles.module.scss';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useData} from "../core/RXdbProvider";
 import {useOAuth} from "../core/OAuthProvider";
 import SyncIndicator from "./SyncIndicator";
@@ -12,9 +12,8 @@ const UserStatus = ({ connection }) => {
     // Define state for open/closed status
     const [isOpen, setIsOpen] = useState(false);
     const {syncStatus, } = useData();
-    const {oauthSignOut, profile} = useOAuth();
-    const [isOnline] = useState(navigator.onLine);
-    // Define function to toggle open/close status
+    const {oauthSignOut, profile, isOnline} = useOAuth();
+
     const toggleOpen = () => {
         setIsOpen(!isOpen);
     };
@@ -42,7 +41,7 @@ const UserStatus = ({ connection }) => {
             {isOpen && (
                 <>
                     <p>{profile?.name}</p>
-                    <button onClick={()=>{
+                    <button className={styles['log-button']} onClick={()=>{
                         oauthSignOut();
                     }}>Log Out</button>
                 </>

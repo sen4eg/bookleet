@@ -4,9 +4,13 @@ import {useEffect, useState} from "react";
 import AddButton from "../components/AddButton";
 import Book from "../components/Book";
 import BookModal from "../components/BookModal";
-import {Entity, Book as BookCl} from "../core/data/Entities";
 import {useData} from "../core/RXdbProvider";
 import {debugLog} from "../core/utils";
+import {useOAuth} from "../core/OAuthProvider";
+import {EntityManager} from "../core/data/Entities";
+
+const Entity = EntityManager.Entity;
+const BookCl = EntityManager.Book;
 
 const Books = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -68,10 +72,16 @@ const Books = () => {
 
     useEffect(() => {
         if (!database) return;
+        const fetchBooks = async () => {
+            Entity.findAll(database, 'books').then((books) => {
+                setBooks(books.sort((a, b) => +new Date(b._data.timestamp) - new Date(a._data.timestamp)));
+                debugLog("books", books);
+            });
+        }
         debugLog("fetching books");
         fetchBooks();
 // eslint-disable-next-line
-    }, [database]);
+    }, []);
 
     return (
         <PageLayout pageTitle="My Books" mainContent={

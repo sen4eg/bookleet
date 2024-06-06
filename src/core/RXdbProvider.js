@@ -18,7 +18,7 @@ export const RxDBProvider = ({ children }) => {
     const [database, setDatabase] = useState(null);
     const [syncStatus, setSyncStatus] = useState('idle');
     const [error, setError] = useState(null);
-    const { clientId, token, auth_complete } = useOAuth();
+    const { clientId, token, auth_complete, isOnline } = useOAuth();
     const [databaseReady, setDatabaseReady] = useState(false);
     const [subscription, setSubscription] = useState(null);
     const [previousData, setPreviousData] = useState(null);
@@ -84,6 +84,7 @@ export const RxDBProvider = ({ children }) => {
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const setObserver = () => {
         if (!database || subscription) return;
 
@@ -97,6 +98,7 @@ export const RxDBProvider = ({ children }) => {
         setSubscription(sub);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const removeObserver = () => {
         if (subscription) {
             subscription.unsubscribe();
@@ -141,6 +143,14 @@ export const RxDBProvider = ({ children }) => {
             removeObserver();
         };
     }, [auth_complete, database, databaseReady, remoteDb, removeObserver, setObserver]);
+
+    useEffect(() => {
+        if (!isOnline) return;
+        if (syncStatus === 'syncingOut'){
+            handleDataExport();
+        }
+        // eslint-disable-next-line
+    }, [isOnline]);
 
     return (
         <RxDBContext.Provider value={{ database, syncStatus, error }}>

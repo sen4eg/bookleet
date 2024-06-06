@@ -43,15 +43,17 @@ const BookModal = ({ isOpen, onClose, onAdd, onEdit, book }) => {
             onAdd({ title: sanitizedTitle, author: sanitizedAuthor, genre: sanitizedGenre, isFavorite, status });
         }
 
-        onClose();
+        handleModalClose();
     };
-
-    const handleModalClose = () => {
+    const resetForm = () => {
         setTitle("");
         setAuthor("");
         setGenre("");
         setIsFavorite(false);
         setStatus("Red");
+    }
+    const handleModalClose = () => {
+        resetForm();
         onClose();
     };
 

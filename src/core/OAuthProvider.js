@@ -8,21 +8,29 @@ const OAuthProvider = ({ children }) => {
     const clientId = process.env.REACT_APP_GAPI_CLIENT_ID;
     const [token, setToken] = useState(localStorage.getItem('oauth_token'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('oauth_refresh_token'));
-    // const [scopes, setScopes] = useState(localStorage.getItem('oauth_scopes')?.split(' ') || []);
     const [profile, setProfile] = useState(null);
     const [auth_complete, setAuthComplete] = useState(false);
 
 
 
     const handleSignInResult = (data) => {
-        debugLog("Token data:", data);
+        if (!data) {
+            console.error("No token data received");
+            return;
+        }
         const { access_token, refresh_token } = data;
+        if (!access_token || !refresh_token) {
+            console.error("No access or refresh token received");
+            return;
+        }
         setToken(access_token);
         setRefreshToken(refresh_token);
-        // setScopes(scope.split(' '));
         localStorage.setItem('oauth_token', access_token);
         localStorage.setItem('oauth_refresh_token', refresh_token);
-        fetchUserProfile(access_token, setProfile).then();
+
+        fetchUserProfile(access_token, setProfile).then( () => {
+            setAuthComplete(true);
+        })
     }
 
     const handleOAuthSignIn = async () => {
@@ -50,7 +58,7 @@ const OAuthProvider = ({ children }) => {
     const oauthSignOut = () => {
         setToken(null);
         setRefreshToken(null);
-        setProfile({ email: "user" });
+        setProfile(null);
         localStorage.removeItem('oauth_token');
         localStorage.removeItem('oauth_refresh_token');
         localStorage.removeItem('oauth_scopes');
@@ -75,9 +83,27 @@ const OAuthProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auth_complete]);
 
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    console.log("status:", profile);
+
+    useEffect(() => {
+        const handleOnlineStatusChange = (status) => {
+            setIsOnline(status.type === 'online');
+        }
+
+        window.addEventListener('online', handleOnlineStatusChange);
+        window.addEventListener('offline', handleOnlineStatusChange);
+
+        return () => {
+            window.removeEventListener('online', handleOnlineStatusChange);
+            window.removeEventListener('offline', handleOnlineStatusChange);
+        };
+    }, []);
+
+
     return (
-        <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated:!!token, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete }}>
-            {children}
+        <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated:!!token, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete, isOnline }}>
+            {(isOnline || profile)?children:<h1>This page is network dependant</h1>}
         </OAuthContext.Provider>
     );
 };

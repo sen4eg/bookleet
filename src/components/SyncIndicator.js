@@ -131,16 +131,20 @@ const SyncIndicator = ({ syncStatus, connected, dimension = 32 }) => {
             cancelAnimationFrame(animationFrame);
         }
     }
+
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         const status = syncStatus.toLowerCase();
 
+        console.log("connected?", connected);
 
 
-
-        if (!!connected) {
+        if (connected) {
             drawCloud(ctx, dimension, 'white');
+        } else {
+            drawRedCircle(ctx, dimension);
+            return;
         }
         if (status === 'synced') {
             stopAnimation();
