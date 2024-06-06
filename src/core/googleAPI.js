@@ -10,6 +10,8 @@ const handleCodeReceived = async (code, handleSignInResult, clientId) => {
         params.append('grant_type', 'authorization_code');
         params.append('redirect_uri', process.env.REACT_APP_HOSTNAME + "/callback");
         params.append('client_secret', process.env.REACT_APP_GAPI_CLIENT_SECRET);
+        // params.append('access_type', 'offline'); // apparently this is not needed, refresh token is like a bluebird of happiness, once you get it, you have it, you trying to catch it and it flies away
+        // params.append('prompt', 'consent');
 
         const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/token';
         return await fetch(oauth2Endpoint, {
