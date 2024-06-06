@@ -12,10 +12,10 @@ const Book = ({ book, onEdit, onDelete }) => {
             <p className={styles['book-genre']}>Genre: {bookData.genre}</p>
             <p className={styles['book-status']}>Status: {bookData.status}</p>
             <p className={styles['book-favorite']}>{bookData.isFavorite ? "☆" : " "}</p>
-            <div className={styles['button-group']}>
+            {!!onDelete && (<div className={styles['button-group']}>
                 <button className={styles['edit-button']} onClick={() => onEdit(book)}>Edit</button>
                 <button className={styles['delete-button']} onClick={() => onDelete(book)}>Delete</button>
-            </div>
+            </div>)}
         </div>
     );
 }

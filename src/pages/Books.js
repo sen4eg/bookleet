@@ -15,7 +15,7 @@ const Books = () => {
 
     const [selectedBook, setSelectedBook] = useState(null);
 
-    const { database, syncStatus } = useData();
+    const { database } = useData();
 
     const [books, setBooks] = useState([
         // Your list of books goes here
@@ -70,8 +70,8 @@ const Books = () => {
         if (!database) return;
         debugLog("fetching books");
         fetchBooks();
-
-    }, [database, syncStatus]);
+// eslint-disable-next-line
+    }, [database]);
 
     return (
         <PageLayout pageTitle="My Books" mainContent={

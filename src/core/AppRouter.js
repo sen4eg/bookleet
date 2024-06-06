@@ -16,7 +16,6 @@ const AppRouter = () => {
         <RxDBProvider>
 
           <Routes>
-            <Route exact path="/" element={<Home/>} />
             <Route path="/login" element={<Login/>}></Route>
             <Route path="/callback" element={<Callback/>}></Route>
             <Route path="/" element={

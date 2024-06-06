@@ -9,23 +9,10 @@ const OAuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('oauth_token'));
     const [refreshToken, setRefreshToken] = useState(localStorage.getItem('oauth_refresh_token'));
     // const [scopes, setScopes] = useState(localStorage.getItem('oauth_scopes')?.split(' ') || []);
-    const [profile, setProfile] = useState({ email: "user" });
+    const [profile, setProfile] = useState(null);
     const [auth_complete, setAuthComplete] = useState(false);
 
-    useEffect(() => {
-        refreshAuthToken().then(()=> {
-            if (!auth_complete) return;
-            fetchUserProfile(token, setProfile).then()
-        });
-    }, [auth_complete]);
 
-    useEffect(() => {
-        if (!auth_complete) return;
-        fetchUserProfile(token, setProfile).then(
-            () => debugLog("Profile fetched successfully"),
-            (error) => console.error("Error fetching profile:", error)
-        )
-    }, [auth_complete]);
 
     const handleSignInResult = (data) => {
         debugLog("Token data:", data);
@@ -70,6 +57,23 @@ const OAuthProvider = ({ children }) => {
         setAuthComplete(false);
     };
 
+    useEffect(() => {
+        if (auth_complete) return;
+
+        refreshAuthToken().then(
+
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // For current stage of development it's good enough to use such one-time effect, more convenient way is to use refs as in syncing in case of rxdb provider
+
+    useEffect(() => {
+        if (!auth_complete || !!profile) return;
+        fetchUserProfile(token, setProfile).then(
+            () => debugLog("Profile fetched successfully"),
+            (error) => console.error("Error fetching profile:", error)
+        )
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth_complete]);
 
     return (
         <OAuthContext.Provider value={{ token, refreshToken, isAuthenticated:!!token, oauthSignIn: handleOAuthSignIn, oauthSignOut, clientId, profile, auth_complete }}>

@@ -1,13 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { createRxDatabase } from 'rxdb';
 import { getRxStorageMemory } from 'rxdb/plugins/storage-memory';
-
 import { RxDBJsonDumpPlugin } from 'rxdb/plugins/json-dump';
 import { addRxPlugin } from 'rxdb';
 
 import d from "./data/Drive";
 import { useOAuth } from "./OAuthProvider";
-import {debugLog} from "./utils";
+import { debugLog } from "./utils";
 
 addRxPlugin(RxDBJsonDumpPlugin);
 
@@ -24,6 +23,7 @@ export const RxDBProvider = ({ children }) => {
     const [subscription, setSubscription] = useState(null);
     const [previousData, setPreviousData] = useState(null);
     const [remoteDb, setRemoteDb] = useState(null);
+    const isSyncingInRef = useRef(false); // Ref to track sync-in state
 
     const setDatabaseSchema = async (db) => {
         const tempBookSchema = {
@@ -108,6 +108,9 @@ export const RxDBProvider = ({ children }) => {
         if (!auth_complete || !databaseReady || !!remoteDb) return;
 
         const syncDatabase = async () => {
+            if (isSyncingInRef.current) return; // Prevent concurrent sync-in operations
+
+            isSyncingInRef.current = true;
             try {
                 debugLog('Syncing database');
                 setSyncStatus('syncingIn');
@@ -126,6 +129,8 @@ export const RxDBProvider = ({ children }) => {
                 setSyncStatus('synced');
             } catch (error) {
                 setError(error);
+            } finally {
+                isSyncingInRef.current = false;
             }
         };
 

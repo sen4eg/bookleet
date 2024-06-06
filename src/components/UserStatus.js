@@ -24,7 +24,7 @@ const UserStatus = ({ connection }) => {
         <div className={styles["user-status"]} onClick={toggleOpen}>
             {/* Render user icon and synced status when closed */}
             {
-                <img className={styles["user-icon"]} src={profile.picture} alt={"UserPic"}/>
+                <img className={styles["user-icon"]} src={profile?.picture} alt={"UserPic"}/>
             }
 
             {/* Render user icon and syncing status when closed and connection is false */}
@@ -41,7 +41,7 @@ const UserStatus = ({ connection }) => {
 
             {isOpen && (
                 <>
-                    <p>{profile.name}</p>
+                    <p>{profile?.name}</p>
                     <button onClick={()=>{
                         oauthSignOut();
                     }}>Log Out</button>
