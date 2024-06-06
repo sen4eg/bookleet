@@ -1,3 +1,5 @@
+import {debugLog} from "../utils";
+
 const Drive = {
     init(clientId, token, db_name) {
         this._clientId = clientId;
@@ -9,14 +11,12 @@ const Drive = {
     async tryRetrieveDb(setError) {
         try {
             const file = await this.checkFileInAppData();
-            console.log("FILE", file);
             if (file) {
-                console.log('File exists:', file);
                 const result = await this.downloadFileContent(file.id);
-                console.log("RESULT", result);
+
                 return result;
             } else {
-                console.log('File does not exist');
+                debugLog('File does not exist');
                 return null;
             }
         } catch (error) {
@@ -45,8 +45,8 @@ const Drive = {
             });
 
             if (!response.ok) {
-                console.log("RESPONSE", response);
-                console.log("RESPONSE", response.statusText);
+                debugLog("RESPONSE", response);
+                debugLog("RESPONSE", response.statusText);
                 console.error("Error fetching file list:", response.statusText);
                 return null;
             }
@@ -77,14 +77,14 @@ const Drive = {
 
     async saveJsonToAppData(jsonData, setError, onsucces) {
         try {
-            console.log('Saving JSON to AppData');
+            debugLog('Saving JSON to AppData');
             const file = await this.checkFileInAppData();
             if (file) {
                 await this.updateFileInAppData(file.id, jsonData).then(onsucces);
-                // console.log('File updated successfully');
+                // debugLog('File updated successfully');
             } else {
                 await this.createFileInAppData(jsonData).then(onsucces);
-                // console.log('File created successfully');
+                // debugLog('File created successfully');
             }
         } catch (error) {
             setError(error);
@@ -137,7 +137,7 @@ const Drive = {
             },
             body: JSON.stringify(jsonData)
         });
-        console.log("RESPONSE", response);
+        debugLog("RESPONSE", response);
         if (!response.ok) {
             throw new Error(`Error updating file: ${response.statusText}`);
         }

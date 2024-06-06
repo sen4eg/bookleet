@@ -1,8 +1,9 @@
+import {debugLog} from "./utils";
 // helper functions for google oauth2
 
 const handleCodeReceived = (code, handleSignInResult, clientId) => {
     try {
-        console.log("Code received:", code);
+        debugLog("Code received:", code);
         const params = new URLSearchParams();
         params.append('client_id', clientId);
         params.append('code', code);
@@ -18,7 +19,7 @@ const handleCodeReceived = (code, handleSignInResult, clientId) => {
             },
             body: params.toString()
         }).then((response) => {
-            console.log("Response:", response);
+            debugLog("Response:", response);
             response.json().then((data) => {
                 handleSignInResult(data);
             });
@@ -29,7 +30,7 @@ const handleCodeReceived = (code, handleSignInResult, clientId) => {
 }
 
 const fetchUserProfile = async (token, setProfile) => {
-    console.log("Fetching user profile with token:", token);
+    debugLog("Fetching user profile with token:", token);
     try {
         fetch(`https://www.googleapis.com/oauth2/v3/userinfo`, {
             headers: {
@@ -44,7 +45,7 @@ const fetchUserProfile = async (token, setProfile) => {
 
             response.json().then((data) => {
             setProfile(data);
-            console.log("User profile:", data);});
+            debugLog("User profile:", data);});
         });
 
 
@@ -56,7 +57,7 @@ const signIn = async (clientId, handleSignInResult) => {
     const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
     const params = {
         'client_id': clientId,
-        'redirect_uri': 'http://localhost:3000/callback',
+        'redirect_uri': process.env.REACT_APP_HOSTNAME + "/callback",
         'response_type': 'code',
         'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile',
         'access_type': 'offline',
@@ -73,7 +74,7 @@ const signIn = async (clientId, handleSignInResult) => {
         if (event.origin === window.location.origin ) {
             if (!!event.data.code){
                 const { code } = event.data;
-                console.log("Received code:", event.data);
+                debugLog("Received code:", event.data);
                 oauthWindow.close();
                 handleCodeReceived(code,handleSignInResult, clientId);
             }
@@ -101,7 +102,7 @@ const handleRefresh = (refreshToken, setToken, clientId, setAuthComplete) => {
     }).then((response) => {response.json().then((data) => {
         const { access_token } = data;
         setToken(access_token);
-        console.log("Refreshed token:", access_token);
+        debugLog("Refreshed token:", access_token);
         localStorage.setItem('oauth_token', access_token);
         setAuthComplete(true);
     })});

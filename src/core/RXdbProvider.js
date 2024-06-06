@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createRxDatabase } from 'rxdb';
-import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
-import {getRxStorageMemory} from 'rxdb/plugins/storage-memory';
+import { getRxStorageMemory } from 'rxdb/plugins/storage-memory';
 
 import { RxDBJsonDumpPlugin } from 'rxdb/plugins/json-dump';
 import { addRxPlugin } from 'rxdb';
 
 import d from "./data/Drive";
 import { useOAuth } from "./OAuthProvider";
+import {debugLog} from "./utils";
 
 addRxPlugin(RxDBJsonDumpPlugin);
 
@@ -23,6 +23,7 @@ export const RxDBProvider = ({ children }) => {
     const [databaseReady, setDatabaseReady] = useState(false);
     const [subscription, setSubscription] = useState(null);
     const [previousData, setPreviousData] = useState(null);
+    const [remoteDb, setRemoteDb] = useState(null);
 
     const setDatabaseSchema = async (db) => {
         const tempBookSchema = {
@@ -30,154 +31,123 @@ export const RxDBProvider = ({ children }) => {
             primaryKey: 'id',
             type: 'object',
             properties: {
-                id: {
-                    type: 'string',
-                    maxLength: 100,
-                    primary: true
-                },
-                title: {
-                    type: 'string',
-                    maxLength: 100
-                },
-                author: {
-                    type: 'string',
-                    maxLength: 100
-                },
-                genre: {
-                    type: 'string',
-                    maxLength: 50
-                },
-                isFavorite: {
-                    type: 'boolean'
-                },
-                status: {
-                    type: 'string',
-                    enum: ['Red', 'Reading', 'Left aside']
-                },
-                timestamp: {
-                    type: 'string',
-                    format: 'date-time'
-                }
+                id: { type: 'string', maxLength: 100, primary: true },
+                title: { type: 'string', maxLength: 100 },
+                author: { type: 'string', maxLength: 100 },
+                genre: { type: 'string', maxLength: 50 },
+                isFavorite: { type: 'boolean' },
+                status: { type: 'string', enum: ['Red', 'Reading', 'Left aside'] },
+                timestamp: { type: 'string', format: 'date-time' }
             },
             required: ['id', 'title', 'author', 'genre', 'isFavorite', 'status', 'timestamp']
         };
-        await db.addCollections({
-            books: {
-                schema: tempBookSchema
-            }
-        }).then(() => {
-            setDatabaseReady(true);
-        });
-    }
+
+        await db.addCollections({ books: { schema: tempBookSchema } });
+        setDatabaseReady(true);
+    };
 
     useEffect(() => {
-        let mounted = true;
-        if (!auth_complete) return;
-        const prepareDatabase = async () => {
-            if (!auth_complete || database) return;
+        if (!auth_complete || database) return;
 
+        const prepareDatabase = async () => {
             try {
-                console.log('Creating database');
+                debugLog('Creating database');
                 const db = await createRxDatabase({
                     name: dbName,
-                    // storage: getRxStorageDexie('idb'),
                     storage: getRxStorageMemory(),
                     multiInstance: false,
                     eventReduce: true
                 });
-                console.log('Database created', db);
+                debugLog('Database created', db);
 
-                if (mounted) {
-                    setDatabase(db);
-                    await setDatabaseSchema(db);
-                }
+                setDatabase(db);
+                await setDatabaseSchema(db);
             } catch (error) {
                 setError(error);
             }
         };
+
         d.init(clientId, token, dbName);
         prepareDatabase();
+    }, [auth_complete, clientId, database, token]);
 
-        return () => {
-            mounted = false;
-        };
-    }, [auth_complete, database]);
-
-
-    const handleDataExport = () => {
-        console.log('Change detected');
-
+    const handleDataExport = async () => {
         if (!database) return;
-        setSyncStatus('syncingOut')
-        database.exportJSON().then((json) => {
-            d.saveJsonToAppData(json,setError, ()=>setSyncStatus('synced'));
-            console.log('Exported database', json);
-        });
 
-    }
+        setSyncStatus('syncingOut');
+        try {
+            const json = await database.exportJSON();
+            await d.saveJsonToAppData(json, setError, () => setSyncStatus('synced'));
+            debugLog('Exported database', json);
+        } catch (error) {
+            setError(error);
+        }
+    };
 
     const setObserver = () => {
-        if (!database) return;
+        if (!database || subscription) return;
+
         const sub = database.books.$.subscribe((changeEvent) => {
-            console.log('Change detected', changeEvent);
+            debugLog('Change detected', changeEvent);
             if (previousData && previousData.toJSON() === changeEvent.toJSON()) return;
             handleDataExport();
             setPreviousData(changeEvent);
         });
+
         setSubscription(sub);
-    }
+    };
 
     const removeObserver = () => {
-        if (!database || subscription===null) return;
-        subscription.unsubscribe();
-    }
+        if (subscription) {
+            subscription.unsubscribe();
+            setSubscription(null);
+        }
+    };
 
     useEffect(() => {
-        let mounted = true;
-        if (!auth_complete) return;
-        const syncDatabase = async () => {
-            if (!database || !databaseReady) return;
-            if (!mounted) return;
-            try {
-                console.log('Syncing database');
-                setSyncStatus('syncingIn');
-                const remoteDb = await d.tryRetrieveDb(setError);
+        if (!auth_complete || !databaseReady || !!remoteDb) return;
 
-                if (remoteDb) {
-                    console.log('Remote database found');
-                    await database.importJSON(remoteDb).then(() => {setSyncStatus('synced');
-                    console.log('Imported remote ddasdasasdatabase');
-                    });
-                    console.log('Imported remote database');
+        const syncDatabase = async () => {
+            try {
+                debugLog('Syncing database');
+                setSyncStatus('syncingIn');
+                const received = await d.tryRetrieveDb(setError);
+
+                if (received) {
+                    debugLog('Remote database found');
+                    setRemoteDb(received);
+                    await database.importJSON(received);
+                    debugLog('Imported remote database');
                 } else {
-                    console.log('No remote database found');
+                    debugLog('No remote database found');
                 }
-                console.log('Database synced');
+
                 setObserver();
                 setSyncStatus('synced');
             } catch (error) {
                 setError(error);
             }
         };
-        removeObserver();
 
+        removeObserver();
         syncDatabase();
 
         return () => {
-            mounted = false;
+            removeObserver();
         };
-    },[auth_complete, databaseReady]);
+    }, [auth_complete, database, databaseReady, remoteDb, removeObserver, setObserver]);
+
     return (
-        <RxDBContext.Provider value={ {database, syncStatus, error} }>
+        <RxDBContext.Provider value={{ database, syncStatus, error }}>
             {children}
         </RxDBContext.Provider>
     );
 };
 
-export const useData = () =>{
+export const useData = () => {
     const context = useContext(RxDBContext);
     if (!context) {
         throw new Error('useData must be used within an RxDBProvider');
     }
     return context;
-}
+};

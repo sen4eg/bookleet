@@ -6,6 +6,7 @@ import Book from "../components/Book";
 import BookModal from "../components/BookModal";
 import {Entity, Book as BookCl} from "../core/data/Entities";
 import {useData} from "../core/RXdbProvider";
+import {debugLog} from "../core/utils";
 
 const Books = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +26,7 @@ const Books = () => {
     const addBook = (book) => {
         if (!book && !database) return;
         const bookObj = new BookCl(book);
-        console.log("bookObj", bookObj);
+        debugLog("bookObj", bookObj);
         bookObj.persist(database).then(() => {
             fetchBooks().then();
             closeModal();
@@ -61,13 +62,13 @@ const Books = () => {
     const fetchBooks = async () => {
         Entity.findAll(database, 'books').then((books) => {
             setBooks(books.sort((a, b) => +new Date(b._data.timestamp) - new Date(a._data.timestamp)));
-            console.log("books", books);
+            debugLog("books", books);
         });
     }
 
     useEffect(() => {
         if (!database) return;
-        console.log("fetching books");
+        debugLog("fetching books");
         fetchBooks();
 
     }, [database, syncStatus]);

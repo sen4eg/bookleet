@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {signIn, handleRefresh, fetchUserProfile} from "./googleAPI";
+import {debugLog} from "./utils";
 
 const OAuthContext = createContext({});
 
@@ -21,13 +22,13 @@ const OAuthProvider = ({ children }) => {
     useEffect(() => {
         if (!auth_complete) return;
         fetchUserProfile(token, setProfile).then(
-            () => console.log("Profile fetched successfully"),
+            () => debugLog("Profile fetched successfully"),
             (error) => console.error("Error fetching profile:", error)
         )
     }, [auth_complete]);
 
     const handleSignInResult = (data) => {
-        console.log("Token data:", data);
+        debugLog("Token data:", data);
         const { access_token, refresh_token } = data;
         setToken(access_token);
         setRefreshToken(refresh_token);
@@ -43,7 +44,7 @@ const OAuthProvider = ({ children }) => {
 
     const refreshAuthToken = async () => {
         setAuthComplete(false);
-        console.log("Refreshing token");
+        debugLog("Refreshing token");
         if (!refreshToken) {
             console.error("No refresh token available");
             oauthSignOut();
