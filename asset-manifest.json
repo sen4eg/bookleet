@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/bookleet/static/css/main.93f6f289.css",
+    "main.js": "/bookleet/static/js/main.76ca4fda.js",
+    "static/js/453.d5cedb41.chunk.js": "/bookleet/static/js/453.d5cedb41.chunk.js",
+    "static/media/open.mp3": "/bookleet/static/media/open.11365393ae6af05315d3.mp3",
+    "static/media/close.mp3": "/bookleet/static/media/close.8c6da732a32f167b3117.mp3",
+    "index.html": "/bookleet/index.html",
+    "main.93f6f289.css.map": "/bookleet/static/css/main.93f6f289.css.map",
+    "main.76ca4fda.js.map": "/bookleet/static/js/main.76ca4fda.js.map",
+    "453.d5cedb41.chunk.js.map": "/bookleet/static/js/453.d5cedb41.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.93f6f289.css",
+    "static/js/main.76ca4fda.js"
+  ]
+}
